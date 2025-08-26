@@ -153,8 +153,18 @@ func move_player(delta):
 	var input_dir = Input.get_vector(KEY_BIND_LEFT, KEY_BIND_RIGHT, KEY_BIND_UP, KEY_BIND_DOWN)
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
-	velocity.x = move_toward(velocity.x, direction.x * speed, accel * delta)
-	velocity.z = move_toward(velocity.z, direction.z * speed, accel * delta)
+	velocity.x = exponential_decay(
+		velocity.x,
+		direction.x * speed,
+		accel,
+		delta
+	)
+	velocity.z = exponential_decay(
+		velocity.z,
+		direction.z * speed,
+		accel,
+		delta
+	)
 
 	move_and_slide()
 
@@ -169,3 +179,6 @@ func reset_head_bob(delta):
 	if $Head.position == head_start_pos:
 		pass
 	$Head.position = lerp($Head.position, head_start_pos, 2 * (1/HEAD_BOB_FREQUENCY) * delta)
+
+func exponential_decay(a:float, b:float, decay:float, delta:float) -> float:
+	return b + (a - b) * exp(-decay * delta)
